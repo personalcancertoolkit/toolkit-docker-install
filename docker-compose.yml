@@ -1,4 +1,4 @@
-version: '2.1'
+version: '3.3'
 
 networks:
   openmrsdb:
@@ -27,23 +27,22 @@ services:
       - "8080:8080"
       - "5000:5000"
     depends_on:
-       toolkit-openmrs-mysql:
-        condition: service_healthy
+      - toolkit-openmrs-mysql
     networks:
       - openmrsdb
       - openmrsweb
-  toolkit-openmrs-nginx:
-    image: nginx:alpine
-    ports:
-      - "80:80"
-    networks:
-      - openmrsweb
-      - symptommanagementdb
-    volumes:
-      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
-      - ./logs/access.log:/var/log/nginx/demo_access.log
-      - ./logs/error.log:/var/log/nginx/demo_error.log
-      - ./symptom-management:/var/www/symptom-management
+  #toolkit-openmrs-nginx:
+  #  image: nginx:alpine
+  #  ports:
+  #    - "80:80"
+  #  networks:
+  #    - openmrsweb
+  #    - symptommanagementdb
+  #  volumes:
+  #    - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+  #    - ./logs/access.log:/var/log/nginx/demo_access.log
+  #    - ./logs/error.log:/var/log/nginx/demo_error.log
+  #    - ./symptom-management:/var/www/symptom-management
   phpfpm:
     image: maurya/sm-php:7.1
     ports:
@@ -65,7 +64,7 @@ services:
       - MYSQL_ROOT_PASSWORD=root
       - MYSQL_DATABASE=symptom_management
       - MYSQL_USER=symptom_management_user
-      - MYSQL_PASSWORD=symptom_management_password
+      - MYSQL_PASSWORD=maybe_its_maybelline
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
     restart: always
