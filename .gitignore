@@ -1,5 +1,8 @@
 openmrs_data/*
 symptommanagement_data/*
+logs/
+tomcat/.OpenMRS/*
+!tomcat/.OpenMRS/modules
 
 # Mac OS files
 .DS_Store
