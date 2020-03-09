@@ -1,6 +1,6 @@
 openmrs_data/*
 symptommanagement_data/*
-logs/
+logs/*
 tomcat/.OpenMRS/*
 !tomcat/.OpenMRS/modules
 
