@@ -18,7 +18,6 @@
     <!-- jQuery CSS Includes -->
     <link type="text/css" href="css/themes/smoothness/jquery-ui.min.css" rel="stylesheet" />
     <link type="text/css" href="css/themes/smoothness/jquery.ui.theme.css" rel="stylesheet" /> 
-    <link href="font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
     
     <link rel="stylesheet" href="css/portal_main.css"> 
 

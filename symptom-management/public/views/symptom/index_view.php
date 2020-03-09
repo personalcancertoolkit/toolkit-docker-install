@@ -41,7 +41,7 @@ if($_SESSION["user_id"] < 1){
                 <li><a href="http://www.chemocare.com/MANAGING/index.asp" onclick="popblank(\'\');" target="blank">Managing Chemotherapy Side Effects</a><br />(Chemocare.com)</li>
                 <li><a href="http://www.cancer.net/patient/Diagnosis+and+Treatment/Treating+Cancer/Managing+Side+Effects" onclick="popblank(\'\');" target="blank">Understanding and Managing Chemotherapy Side Effects</a> (Cancer.Net)</li>
                 <li><a href="http://www.cancercare.org/publications/24-understanding_and_managing_chemotherapy_side_effects" onclick="popblank(\'\');" target="blank">Managing Treatment and Side Effects</a><br />(Cancer Care Online)</li>
-                <li><a href="https://www.oncolink.org/support/side-effects" onclick="popblank(\'\');" target="blank">Side Effects</a> (OncoLink&#174;)</li>
+                <li><a href="http://www.oncolink.upenn.edu/coping/coping.cfm?c=5" onclick="popblank(\'\');" target="blank">Side Effects</a> (OncoLink&#174;)</li>
             </ul>
             </div>  <!-- /#resources /.well well-lg -->
         </div>  <!--  /#rightcolumn  /.col-md-3 -->

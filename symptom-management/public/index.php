@@ -9,7 +9,7 @@ session_start();
 ////set the sessions to last for 3 hours
 //if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY'] > (3*60*60))){
 //	// last request was more than 3 hours ago
-//	session_unset();     // unset $_SESSION variable for the run-time 
+//	session_unset();     // unset $_SESSION variable for the run-time
 //	session_destroy();   // destroy session data in storage
 //	$_SESSION['LAST_ACTIVITY'] = time(); // update last activity time stamp
 //}
@@ -21,59 +21,52 @@ session_start();
 //   	session_regenerate_id(true);    // change session ID for the current session an invalidate old session ID
 //  	$_SESSION['CREATED'] = time();  // update creation time
 //}
-	
+
+// if true - show all errors for debugging
+if(false){
+    error_reporting(E_ALL);
+    ini_set('display_errors', 1);
+}
+
 // make a mysqli connection
 include("php/o_portalConnect.php");
-	
-	
-	
+
+
+
 $user_id = 0;
 if(isset($_SESSION["user_id"])){
-	//for production
 	$user_id = $_SESSION["user_id"];
-	
-	//for testing
-	//$user_id = $omrs_id;
-	//	$_SESSION["user_id"] = $omrs_id;
 }
-
-//get the cancer type for filtering symptoms
-$cancer_type = "colorectal";
-	if(isset($_REQUEST["cancer_type"])){ $cancer_type = sanitize($_REQUEST['cancer_type']); 
-}
-
-	//for testing:::
-	//$cancer_type = "all";
 
 $start_page = '_003';
-	
+
 ////search variables
 //$search_term = '';
 //$from_search = '';
 //$st = 0;
 //$display_max = 20;
 //$fin = $st + $display_max;
-//	
+//
 //$tracking_seq = '_003';
 //if (isset($_REQUEST["seq"])){
 //	$tracking_seq = $_REQUEST["seq"];
 //}
-//	
-//	
+//
+//
 if(!isset($_SESSION["mysql_sid"])){
 	$query = "INSERT INTO  `sessions` (`session_id` ,`user_id` ,`timestamp`)
 				VALUES (NULL ,  '".$user_id."', NOW( ))";
 	$result = mysqli_query($link, $query);
 	$_SESSION["mysql_sid"] = mysqli_insert_id($link);
 	$_SESSION["user_id"] = $user_id;
-			
+
 	$query = "INSERT INTO  `nav_tracking` (`id` ,`session_id` ,`user_id` ,`pointer` ,`seq` ,`timestamp`)
 				VALUES (NULL, '".$_SESSION["mysql_sid"]."',  '".$user_id."',  'current',  '".$tracking_seq."', NOW())";
 	$result = mysqli_query($link, $query);
-			
+
 }
 $session_id = $_SESSION["mysql_sid"];
-//	
+//
 	/* Sanitize function*/
 function sanitize($item){
 	global $link;
@@ -83,21 +76,21 @@ function sanitize($item){
 	$item = mysqli_real_escape_string($link, $item);
 	return($item);
 }
-	
+
 	//
 if((isset($_REQUEST['username']))&&(isset($_REQUEST['password']))){
-	// username and password sent from form 
-	$myusername = sanitize($_REQUEST['username']); 
-	$mypassword = sanitize($_REQUEST['password']); 
-		
+	// username and password sent from form
+	$myusername = sanitize($_REQUEST['username']);
+	$mypassword = sanitize($_REQUEST['password']);
+
 	$mypassword = SHA1($mypassword);
-		
+
 	$query = "SELECT * FROM users WHERE username='".$myusername."' and password='".$mypassword."'";
 	$result = mysqli_query($link, $query);
-		
+
 	// Mysql_num_row is counting table row
 	$count = mysqli_num_rows($result);
-		
+
 	// If result matched $myusername and $mypassword, table row must be 1 row
 	if($count==1){
 		$row = mysqli_fetch_array($result, MYSQLI_BOTH);
@@ -107,22 +100,22 @@ if((isset($_REQUEST['username']))&&(isset($_REQUEST['password']))){
 				$o_user = sanitize($_REQUEST["omrs_user"]);
 				$o_query = "SELECT * FROM users WHERE username = '".$o_user."'";
 				$o_result = mysqli_query($link, $o_query);
-						
+
 				if(mysqli_num_rows($o_result) < 1){
 					//----------create OMRS user account-------------------
-	
+
 					$message .= "haven't seen this OMRS user before... creating account.<br/>";
 					$mypassword = SHA1("OMRS*user-12");
-			
-					$i_query = "INSERT INTO `users` (`id`, `username`, `password`) 
-								VALUES (NULL, '".$o_user."', '".$mypassword."')"; 
-					$i_result = mysqli_query($link, $i_query);	
+
+					$i_query = "INSERT INTO `users` (`id`, `username`, `password`)
+								VALUES (NULL, '".$o_user."', '".$mypassword."')";
+					$i_result = mysqli_query($link, $i_query);
 					$o_user_id = mysqli_insert_id($link);
 					$message .= "Success creating account: user ID ".$o_user_id."<br/>";
-						
+
 					$_SESSION["user_id"] = $o_user_id;
 					$user_id = $_SESSION["user_id"];
-							
+
 					if(isset($_SESSION["mysql_sid"])){
 						$s_query = "UPDATE `sessions` set user_id ='".$o_user_id."' WHERE session_id = '".$_SESSION["mysql_sid"]."'";
 						$s_result = mysqli_query($link,$s_query);
@@ -133,19 +126,19 @@ if((isset($_REQUEST['username']))&&(isset($_REQUEST['password']))){
 						$_SESSION["mysql_sid"] = mysqli_insert_id($link);
 					}// end -- else if(isset($_SESSION["mysql_sid"]))
 					$message .= "The session has been set for a new user:  Session ID ".$_SESSION["mysql_sid"];
-							
+
 					//draw_portal_page($seq);
 					$login = true;
 				}else{ //if(mysql_num_rows($o_result) < 1)
 					if(mysqli_num_rows($o_result) == 1){
-								
+
 							//--------existing OMRS user---------------
-								
+
 						$o_row = mysqli_fetch_array($o_result, MYSQLI_BOTH);
 						$_SESSION["user_id"] = $o_row["id"];
 						$user_id = $_SESSION["user_id"];
 						if(isset($_SESSION["mysql_sid"])){
-							$s_query = "UPDATE `sessions` set user_id ='".$o_row["id"]."' 
+							$s_query = "UPDATE `sessions` set user_id ='".$o_row["id"]."'
 										WHERE session_id = '".$_SESSION["mysql_sid"]."'";
 							$s_result = mysqli_query($link,$s_query);
 							$message .= "The session has been resumed for an existing user:  Session ID ".$_SESSION["mysql_sid"];
@@ -164,13 +157,13 @@ if((isset($_REQUEST['username']))&&(isset($_REQUEST['password']))){
 				} //end -- else if(mysql_num_rows($o_result) < 1)
 			}//end  -- if(isset($_REQUEST["omrs_user"])){
 		}// end if ($row["id"] == $omrs_id){
-	}//  end  if($count==1)			
+	}//  end  if($count==1)
 }//  end  if((isset($_REQUEST['username']))&&(isset($_REQUEST['password']))){
-			
 
-	
+
+
 //	//search-------------------------------------------------------
-//	
+//
 //	if(isset($_REQUEST['search'])){
 //		$start_page = "_000_994";
 //		$search_term = sanitize($_REQUEST['search']);
@@ -184,7 +177,7 @@ if((isset($_REQUEST['username']))&&(isset($_REQUEST['password']))){
 //	}
 //	if(isset($_REQUEST['from_search'])){
 //		$search_term = sanitize($_REQUEST['from_search']);
-//		
+//
 //		$from_search = $search_term;
 //		if(isset($_REQUEST['st'])){
 //			$st = $_REQUEST['st'];
@@ -200,21 +193,21 @@ if((isset($_REQUEST['username']))&&(isset($_REQUEST['password']))){
 //	}
 //	$t_id = $last_id;
 //	if($last_id != "-1"){
-//			$query = "UPDATE user_tracking 
+//			$query = "UPDATE user_tracking
 //				SET leave_time = NOW(),
 //				elapsed_time = TIMESTAMPDIFF(SECOND,load_time,NOW())
 //				WHERE id = '".$last_id."'";
 //			$result = mysqli_query($link, $query);
 //	}
-//	
+//
 ////------------------------------------------------nav tracking
-//	$v_id = 0;	
+//	$v_id = 0;
 ////-----------------------------------------------NAVIGATION CONTROL
 	$nav_direction = "menu";
 	if(isset($_REQUEST["nav"])){
 		$nav_direction = sanitize($_REQUEST["nav"]);
 	}
-	
+
 	$current_seq = sanitize($_REQUEST["seq"]);
 
 	if($current_seq == NULL){
@@ -222,158 +215,56 @@ if((isset($_REQUEST['username']))&&(isset($_REQUEST['password']))){
 	}else{
 		$seq = $current_seq;
 	}
-	
-	$section = substr($seq,0,8);
-	$symptom = substr($seq,8,12);
+
 
 	if($nav_direction == "next"){
-		// is there another sequence # for this section and symptom?
-		$seq_sql = "SELECT seq
+		$navquery = "SELECT seq
 					FROM screenlist
 					WHERE `seq` > '".$seq."'
-					AND `seq` LIKE '".$section.$symptom."%' 
-					AND `s_type` = 'screen' 
+					AND `s_type` = 'screen'
 					ORDER BY `seq` ASC LIMIT 1";
-		$seqresult = mysqli_query($link, $seq_sql);
-		if(mysqli_num_rows($seqresult) > 0){
-			$seqrow = mysqli_fetch_array($seqresult, MYSQLI_BOTH);
-			$seq = $seqrow["seq"];
+		$navresult = mysqli_query($link, $navquery);
+		$navrow = mysqli_fetch_array($navresult, MYSQLI_BOTH);
+		if($navrow["seq"] != NULL){
+			$seq = 	$navrow["seq"];
 		}
-		else  //  if(mysqli_num_rows($seqresult) > 0)
-		{
-			if($symptom > ''){
-				//look through the symptom sort_names, find the next one and search for a SEQUENCE item that comes next, up to 10 tries
-				$search_next = true;
-				while ($search_next){
-					//get the currrent sort name
-					$sql = "SELECT sort_name from symptoms WHERE symptom_id = '".$symptom."' LIMIT 1";
-					$sortresult = mysqli_query($link, $sql);
-					$sortrow = mysqli_fetch_array($sortresult, MYSQLI_BOTH);
-					$sort_name = $sortrow["sort_name"];
+	}
 
-					//get the next symptoms record
-					$sql = "SELECT symptom_id from symptoms 
-							WHERE sort_name > '".$sort_name."' 
-							ORDER BY sort_name ASC LIMIT 1";
-					$sortresult = mysqli_query($link, $sql);
-					if(mysqli_num_rows($sortresult) > 0){
-						$sortrow = mysqli_fetch_array($sortresult, MYSQLI_BOTH);
-						$symptom = $sortrow["symptom_id"];
-						
-						$seq_sql = "SELECT seq
-									FROM screenlist
-									WHERE `seq` LIKE '".$section.$symptom."%' 
-									AND `s_type` = 'screen' 
-									ORDER BY `seq` ASC LIMIT 1";
-						
-						$seqresult = mysqli_query($link, $seq_sql);
-						if(mysqli_num_rows($seqresult) > 0){
-							$seqrow = mysqli_fetch_array($seqresult, MYSQLI_BOTH);
-							$seq = $seqrow["seq"];
-							$search_next = false;
-						} //if(mysqli_num_rows($seqresult) > 0)
-					}  //if(mysqli_num_rows($sortresult) > 0)
-					else  
-					{$search_next = false;}
-				}//while
-			}else{  //if($symptom > '')
-				$navquery = "SELECT seq
-							FROM screenlist 
-							WHERE `seq` > '".$seq."' 
-							AND `s_type` = 'screen' 
-							ORDER BY `seq` ASC LIMIT 1";
-			}  //-- end -- else //if($symptom > '')
-			$navresult = mysqli_query($link, $navquery);
-			$navrow = mysqli_fetch_array($navresult, MYSQLI_BOTH);
-			if($navrow["seq"] != NULL){ $seq = 	$navrow["seq"];	 }
-		}  // -- end  --  else  if(mysqli_num_rows($seqresult) > 0)
-	} //if nav= next
-	
 	if($nav_direction == "prev"){
-		// is there another sequence # for this section and symptom?
-		$seq_sql = "SELECT seq
+		$navquery = "SELECT seq
 					FROM screenlist
-					WHERE `seq`< '".$seq."'
-					AND `seq` LIKE '".$section.$symptom."%' 
-					AND `s_type` = 'screen' 
+					WHERE `seq` < '".$seq."'
+					AND `s_type` = 'screen'
 					ORDER BY `seq` DESC LIMIT 1";
-		$seqresult = mysqli_query($link, $seq_sql);
-		if(mysqli_num_rows($seqresult) > 0){
-			$seqrow = mysqli_fetch_array($seqresult, MYSQLI_BOTH);
-			$seq = $seqrow["seq"];
-		}else  //  if(mysqli_num_rows($seqresult) > 0)
-		{
-			if($symptom > ''){
-								//look through the symptom sort_names, find the next one and search for a SEQUENCE item that comes next, up to 10 tries
-				$search_prev = true;
-				while ($search_prev){
-					//get the currrent sort name
-					$sql = "SELECT sort_name from symptoms WHERE symptom_id = '".$symptom."' LIMIT 1";
-					$sortresult = mysqli_query($link, $sql);
-					$sortrow = mysqli_fetch_array($sortresult, MYSQLI_BOTH);
-					$sort_name = $sortrow["sort_name"];
-					
-					//get the prev symptoms record
-					$sql = "SELECT symptom_id from symptoms 
-							WHERE sort_name < '".$sort_name."' 
-							ORDER BY sort_name DESC LIMIT 1";
-					$sortresult = mysqli_query($link, $sql);
-					if(mysqli_num_rows($sortresult) > 0){
-						$sortrow = mysqli_fetch_array($sortresult, MYSQLI_BOTH);
-						$symptom = $sortrow["symptom_id"];
-						
-						$seq_sql = "SELECT seq
-								FROM screenlist
-								WHERE `seq` LIKE '".$section.$symptom."%' 
-								AND `s_type` = 'screen' 
-								ORDER BY `seq` DESC LIMIT 1";
-								
-						$seqresult = mysqli_query($link, $seq_sql);
-						if(mysqli_num_rows($seqresult) > 0){
-							$seqrow = mysqli_fetch_array($seqresult, MYSQLI_BOTH);
-							$seq = $seqrow["seq"];
-							$search_prev = false;
-						} //if(mysqli_num_rows($seqresult) > 0)
-					}  //if(mysqli_num_rows($sortresult) > 0)
-					else  
-					{$search_prev = false;}
-				}//while
-			}else{  //if($symptom > '')
-				$navquery = "SELECT seq
-							FROM screenlist 
-							WHERE `seq` < '".$seq."' 
-							AND `s_type` = 'screen' 
-							ORDER BY `seq` DESC LIMIT 1";
-			}
-			$navresult = mysqli_query($link, $navquery);
-			$navrow = mysqli_fetch_array($navresult, MYSQLI_BOTH);
-			if($navrow["seq"] != NULL){ $seq = 	$navrow["seq"];	}
-		}  // -- end  --  else  if(mysqli_num_rows($seqresult) > 0)
-	} //if nav = PREV
-	
-	
+		$navresult = mysqli_query($link, $navquery);
+		$navrow = mysqli_fetch_array($navresult, MYSQLI_BOTH);
+		if($navrow["seq"] != NULL){
+			$seq = 	$navrow["seq"];
+		}
+	}
+
 	if($nav_direction == "back"){
 
 		$navquery = "SELECT seq
-					FROM nav_tracking 
-					WHERE `pointer` = 'back' 
+					FROM nav_tracking
+					WHERE `pointer` = 'back'
 					AND session_id = '".$session_id."'
 					ORDER BY `id` DESC LIMIT 1";
 		$navresult = mysqli_query($link, $navquery);
 		$navrow = mysqli_fetch_array($navresult, MYSQLI_BOTH);
 		if($navrow["seq"] != NULL){
-			$seq = 	$navrow["seq"];		
-		}	
+			$seq = 	$navrow["seq"];
+		}
 	}
-	
-	header("Content-Type: text/html");
-    header("Cache-Control: no-store");
-    header("Pragma: no-cache");
-	
+
+	#header("Content-Type: text/html");
+  #  header("Cache-Control: no-store");
+  #  header("Pragma: no-cache");
+
 	$html = '';
 	if ($_REQUEST["test"] == "1")	{$html = 'test';}
-	
-	
+
+
 	//user tracking----------------------
 	$query = "INSERT into user_tracking VALUES(
 					NULL,
@@ -387,24 +278,24 @@ if((isset($_REQUEST['username']))&&(isset($_REQUEST['password']))){
 					NULL)";
 	$result = mysqli_query($link, $query);
 	$t_id = mysqli_insert_id($link);
-	
+
 	//nav tracking--------------------------
 	switch ($nav_direction){
 		case "CGback":
 		case "back":
-			$query = "UPDATE `nav_tracking` set pointer = 'next' 
+			$query = "UPDATE `nav_tracking` set pointer = 'next'
 					WHERE pointer = 'current'
 					AND session_id = '".$session_id."'";
 			$result = mysqli_query($link, $query);
-			$query = "UPDATE `nav_tracking` set pointer = 'current' 
+			$query = "UPDATE `nav_tracking` set pointer = 'current'
 					WHERE seq = '".$seq."'
 					AND session_id = '".$session_id."'";
 			$result = mysqli_query($link, $query);
 			break;
-			
+
 		case "CGnext":
 		case "next":
-			$query = "UPDATE `nav_tracking` set pointer = 'back' 
+			$query = "UPDATE `nav_tracking` set pointer = 'back'
 					WHERE pointer = 'current'
 					AND session_id = '".$session_id."'";
 			$result = mysqli_query($link, $query);
@@ -416,7 +307,7 @@ if((isset($_REQUEST['username']))&&(isset($_REQUEST['password']))){
 			$result = mysqli_query($link, $query);
 			if(mysqli_num_rows($result) > 0){
 				$rows = mysqli_fetch_array($result, MYSQLI_BOTH);
-				$query = "UPDATE `nav_tracking` set pointer = 'current' 
+				$query = "UPDATE `nav_tracking` set pointer = 'current'
 					WHERE seq = '".$seq."'
 					AND id = '".$rows["id"]."'
 					AND session_id = '".$session_id."'";
@@ -427,24 +318,24 @@ if((isset($_REQUEST['username']))&&(isset($_REQUEST['password']))){
 				$result = mysqli_query($link, $query);
 			}
 			break;
-				
+
 		case "menu":
 		case "prev":
 		default:
-			$query = "UPDATE `nav_tracking` set pointer = 'back' 
+			$query = "UPDATE `nav_tracking` set pointer = 'back'
 					WHERE pointer = 'current'
 					AND session_id = '".$session_id."'";
 			$result = mysqli_query($link, $query);
-			$query = "UPDATE  `nav_tracking` set pointer = 'branch' 
+			$query = "UPDATE  `nav_tracking` set pointer = 'branch'
 					WHERE pointer = 'next'
 					AND session_id = '".$session_id."'";
 			$result = mysqli_query($link, $query);
 			$query = "INSERT INTO  `nav_tracking` (`id` ,`session_id` ,`user_id` ,`pointer` ,`seq` ,`timestamp`)
 							VALUES (NULL, '".$session_id."',  '".$user_id."',  'current',  '".$seq."', NOW())";
 			$result = mysqli_query($link, $query);
-			break;		
+			break;
 	}
-//	
+//
 //	echo $seq." user:".$_SESSION["user_id"]." Msg:".$message;
 
 ////////////////////////////////do main query here---------------------
@@ -452,24 +343,24 @@ if((isset($_REQUEST['username']))&&(isset($_REQUEST['password']))){
 	$query = "SELECT s_name, obj_type, content, displayobj.id as dobj_id FROM screenlist, displaylist, displayobj
 				WHERE seq = '".$seq."'
 				AND screenlist.displaylist_id = displaylist.displaylist_id
-				AND displayobj.id = displaylist.displayobj_id";		
-	$result = mysqli_query($link, $query);
-	while($row = mysqli_fetch_array($result, MYSQLI_BOTH)){
-		$this_dobj_id = $row["dobj_id"];
-		switch($row["obj_type"]){
-			case "head":
-			case "title":
-			case "html":$html .= $row["content"];
-					break;
-			case "include":	include($row["content"]);
-					break;	
-		}
+				AND displayobj.id = displaylist.displayobj_id";
+$result = mysqli_query($link, $query);
+while($row = mysqli_fetch_array($result, MYSQLI_BOTH)){
+	$this_dobj_id = $row["dobj_id"];
+	switch($row["obj_type"]){
+		case "head":
+		case "title":
+		case "html":$html .= $row["content"];
+				break;
+		case "include":	include($row["content"]);
+				break;
 	}
-	
+}
+
 	echo $html;
-	
+
 	session_write_close();
-	
+
 
 	//echo $num_rows;
 
