@@ -19,6 +19,7 @@ $dt_query = "SELECT quiz.id as quiz_id, quiz.quiz_name, question.id as q_id, que
 				FROM quiz, quiz_list, question
 				WHERE question.id LIKE '".$q_id."'
 				LIMIT 1";
+				
 $dt_result = mysqli_query($link, $dt_query);
 $dt_row = mysqli_fetch_array($dt_result, MYSQLI_BOTH);
 
