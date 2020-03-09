@@ -40,6 +40,8 @@ services:
       - ./logs/access.log:/var/log/nginx/demo_access.log
       - ./logs/error.log:/var/log/nginx/demo_error.log
       - ./symptom-management:/var/www/symptom-management
+    depends_on:
+      - toolkit-openmrs-tomcat
   phpfpm:
     image: php:7.1-fpm-alpine
     command: /bin/ash -c "docker-php-ext-install mysqli && docker-php-ext-enable mysqli && php-fpm"
