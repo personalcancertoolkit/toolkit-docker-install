@@ -45,25 +45,26 @@
 		$s_name_query = "SELECT s_name FROM screenlist WHERE id = '".$q_num."'";
 		$s_name_result = mysqli_query($link, $s_name_query);
 		$s_name_row = mysqli_fetch_array($s_name_result, MYSQLI_BOTH);
-		
-		// build the data structure, using the symptom name as the top level key
-		if($graph_array[$s_name_row["s_name"]] == NULL){
-			$graph_array[$s_name_row["s_name"]] = array(
-															g_name => $s_name_row["s_name"],
-															q_id => $r_row["question_id"],
-															data_point => array(array(
-																						response =>$r_row["response"],
-																						timestamp =>$r_row["timestamp"])));
-		}else{
-			$graph_array[$s_name_row["s_name"]]["data_point"][] = array(
-																			response => $r_row["response"],
-																			timestamp => $r_row["timestamp"]);
-		}
-		$sesh_array = explode(' ',$r_row["timestamp"]);
-		$sesh_date = $sesh_array[0];
-		if($session_array["s_".$sesh_date] == NULL){
-			$session_array["s_".$sesh_date] = $sesh_date;
-		}
+		if($s_name_row["s_name"] > ' '){  //exclude empty data sets
+			// build the data structure, using the symptom name as the top level key
+			if($graph_array[$s_name_row["s_name"]] == NULL){  
+				$graph_array[$s_name_row["s_name"]] = array(
+																g_name => $s_name_row["s_name"],
+																q_id => $r_row["question_id"],
+																data_point => array(array(
+																							response =>$r_row["response"],
+																							timestamp =>$r_row["timestamp"])));
+			}else{
+				$graph_array[$s_name_row["s_name"]]["data_point"][] = array(
+																				response => $r_row["response"],
+																				timestamp => $r_row["timestamp"]);
+			}
+			$sesh_array = explode(' ',$r_row["timestamp"]);
+			$sesh_date = $sesh_array[0];
+			if($session_array["s_".$sesh_date] == NULL){
+				$session_array["s_".$sesh_date] = $sesh_date;
+			}
+		}// if($s_name_row["s_name"] > ' ')
 	}
 	ksort($session_array);
 	//add in zero response datapoints for each session date for which there is no response data

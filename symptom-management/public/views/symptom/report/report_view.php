@@ -99,14 +99,26 @@
 	<div class = "container">
 		<div class = "row">
 			<nav class = "col-xs-12">
-  				<ul class="pager"><?php 
-	if ($seq > "_003_002_006"){
+  				<ul class="pager">
+<?php 
+				//get the array index of this page 
+				$counter = 1;
+				$this_index = 0;
+				$last_index = count($report_page_array) -1;
+				foreach($report_page_array as $page){
+					if ($page["seq"] == $seq){ $this_index = $counter; }
+					$counter ++;
+				}
+				
+	if ($this_index > 0){
   		echo'
     				<li class="previous"><a href="index.php?nav=prev&seq='.$seq.'"><span aria-hidden="true">&larr;</span> Previous Symptom</a></li>';
 	}
-?>
-	
-    				<li class="next"><a href="index.php?nav=next&seq=<?php echo $seq; ?>">Next Symptom <span aria-hidden="true">&rarr;</span></a></li>
+	if($this_index < $last_index){
+		echo'
+					<li class="next"><a href="index.php?nav=next&seq='.$seq.'">Next Symptom<span aria-hidden="true">&rarr;</span></a></li>';
+	}
+?>	
   				</ul>
 			</nav>
 		</div>  <!-- /.row  -->

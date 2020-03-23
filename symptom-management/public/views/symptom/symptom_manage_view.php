@@ -68,7 +68,7 @@
 		} //end switch($sym_row["response"]){
 			
 	echo '
-			<p><span id="quick_report_link" onclick="javascript:show_quick_report()">Click here to do a <b>Quick Report Update</b>.</span></p>
+			<p><span id="quick_report_link" onclick="javascript:show_quick_report();">Click here to do a <b>Quick Report Update</b>.</span></p>
 			<div id="quick_report" style="display:none">
 				'.$symptom_manage_array["heading"];
 	foreach($symptom_manage_array["tc"] as $tc){
